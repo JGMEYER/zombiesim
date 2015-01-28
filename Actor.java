@@ -1,3 +1,4 @@
+import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -11,15 +12,25 @@ public class Actor extends Circle {
         super(centerX, centerY, ACTOR_RADIUS, Color.GREEN);
     }
 
-    public void act() {
+    public void act(int canvasWidth, int canvasHeight) {
         double dx = (Math.random() * ACTOR_MOVESPEED * 2) - ACTOR_MOVESPEED;
         double dy = (Math.random() * ACTOR_MOVESPEED * 2) - ACTOR_MOVESPEED;
 
-        setTranslateX(dx);
-        setTranslateY(dy);
+        setCenterX(getCenterX() + dx);
+        setCenterY(getCenterY() + dy);
 
-        setCenterX(getCenterX() + getTranslateX());
-        setCenterY(getCenterY() + getTranslateY());
+        if (getCenterX() < 0) {
+            setCenterX(0);
+        }
+        if (getCenterX() > canvasWidth) {
+            setCenterX(canvasWidth);
+        }
+        if (getCenterY() < 0) {
+            setCenterY(0);
+        }
+        if (getCenterY() > canvasHeight) {
+            setCenterY(canvasHeight);
+        }
     }
 
     public boolean isZombie() {

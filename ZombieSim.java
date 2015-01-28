@@ -13,7 +13,9 @@ public class ZombieSim extends Application {
 
     public static final int CANVAS_WIDTH = 800;
     public static final int CANVAS_HEIGHT = 600;
-    public ArrayList<Actor> actors;
+
+    private Pane canvas;
+    private ArrayList<Actor> actors;
 
     public static void main(String[] args) {
         launch(args);
@@ -21,7 +23,7 @@ public class ZombieSim extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Pane canvas = new Pane();
+        canvas = new Pane();
         final Scene scene = new Scene(canvas, CANVAS_WIDTH, CANVAS_HEIGHT, Color.web("#98FB98"));
         primaryStage.setTitle("Zombie Outbreak Simulator v0");
         primaryStage.setScene(scene);
@@ -46,7 +48,7 @@ public class ZombieSim extends Application {
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent event) {
                         for (Actor a : actors) {
-                            a.act();
+                            a.act(CANVAS_WIDTH, CANVAS_HEIGHT);
                         }
 
                         spreadInfectionOnCollision();
@@ -57,7 +59,7 @@ public class ZombieSim extends Application {
     }
 
     //TODO make far more efficient, consider grid system
-    public void spreadInfectionOnCollision() {
+    private void spreadInfectionOnCollision() {
         Actor actorA;
         Actor actorB;
 
