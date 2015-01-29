@@ -13,7 +13,7 @@ public class ZombieSim extends Application {
 
     public static final int CANVAS_WIDTH = 800;
     public static final int CANVAS_HEIGHT = 600;
-    public static final int NUM_STARTING_ACTORS = 3000;
+    public static final int NUM_STARTING_ACTORS = 1000;
 
     private Pane canvas;
     private ArrayList<Actor> actors;
@@ -49,7 +49,7 @@ public class ZombieSim extends Application {
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent event) {
                         for (Actor a : actors) {
-                            a.act(CANVAS_WIDTH, CANVAS_HEIGHT);
+                            a.act(CANVAS_WIDTH, CANVAS_HEIGHT, actors);
                         }
 
                         spreadInfectionOnCollision();
@@ -60,6 +60,7 @@ public class ZombieSim extends Application {
     }
 
     //TODO make far more efficient, consider grid system
+    //TODO move collision logic to Actor
     private void spreadInfectionOnCollision() {
         Actor actorA;
         Actor actorB;
