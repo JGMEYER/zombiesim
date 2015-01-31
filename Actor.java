@@ -169,6 +169,10 @@ public class Actor extends Circle {
         face.toFront();
     }
 
+    public boolean collidesWith(Actor a) {
+        return distanceTo(a) <= ACTOR_RADIUS * 2;
+    }
+
     public boolean isZombie() {
         return isZombie;
     }

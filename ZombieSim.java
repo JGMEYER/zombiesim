@@ -72,14 +72,7 @@ public class ZombieSim extends Application {
                 actorB = actors.get(j);
 
                 if (actorA.isZombie() || actorB.isZombie()) {
-                    double aX = actorA.getCenterX();
-                    double aY = actorA.getCenterY();
-                    double bX = actorB.getCenterX();
-                    double bY = actorB.getCenterY();
-
-                    double dist = Math.sqrt(Math.pow(bX - aX, 2) + Math.pow(bY - aY, 2));
-
-                    if (dist <= Actor.ACTOR_RADIUS * 2) {
+                    if (actorA.collidesWith(actorB)) {
                         actorA.makeZombie();
                         actorB.makeZombie();
                     }
