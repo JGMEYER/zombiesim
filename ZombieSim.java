@@ -36,7 +36,7 @@ public class ZombieSim extends Application {
             double x = Math.random() * CANVAS_WIDTH;
             double y = Math.random() * CANVAS_HEIGHT;
 
-            Actor a = new Actor(x, y);
+            Actor a = new Actor(canvas, x, y);
 
             actors.add(a);
             canvas.getChildren().add(a);
