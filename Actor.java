@@ -40,21 +40,21 @@ public class Actor extends Circle {
     public void act(int canvasWidth, int canvasHeight, List<Actor> actors) {
         Point2D unitVector = new Point2D(0, 0);
 
-        if (!isZombie()) {
-            Actor nearestZombie = findNearestActorWithAttributes(actors, true);
-
-            //TODO figure out actual root of NPE problem & remove quickfix
-            if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
-                moveTowards(nearestZombie, 45, true);
-            } else {
-                moveRandomly();
-            }
-        } else {
+        if (isZombie()) {
             Actor nearestHuman = findNearestActorWithAttributes(actors, false);
 
             //TODO figure out actual root to NPE problem & remove quickfix
             if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
                 moveTowards(nearestHuman, 45, false);
+            } else {
+                moveRandomly();
+            }
+        } else {
+            Actor nearestZombie = findNearestActorWithAttributes(actors, true);
+
+            //TODO figure out actual root of NPE problem & remove quickfix
+            if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
+                moveTowards(nearestZombie, 45, true);
             } else {
                 moveRandomly();
             }
@@ -65,15 +65,13 @@ public class Actor extends Circle {
     }
 
     private void moveTowards(Actor actor, double angleSpread, boolean reverse) {
-        double dx;
-        double dy;
+        double dx = actor.getCenterX() - getCenterX();
+        double dy = actor.getCenterY() - getCenterY();
 
-        if (!reverse) { // move towards actor
-            dx = actor.getCenterX() - getCenterX();
-            dy = actor.getCenterY() - getCenterY();
-        } else { // move away from actor
-            dx = getCenterX() - actor.getCenterX();
-            dy = getCenterY() - actor.getCenterY();
+        // move away from actor
+        if (reverse) {
+            dx *= -1;
+            dy *= -1;
         }
 
         // establish linear trajectory towards or away from actor
