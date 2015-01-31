@@ -5,7 +5,7 @@ import javafx.scene.shape.Circle;
 
 public class Actor extends Circle {
 
-    public static final double ACTOR_RADIUS = 4;
+    public static final double ACTOR_RADIUS = 6;
     public static final double ACTOR_MIN_MOVESPEED = 1;
     public static final double ACTOR_MAX_MOVESPEED = 3;
 
@@ -73,6 +73,15 @@ public class Actor extends Circle {
         setCenterY(newCenterY);
     }
 
+    private void moveRandomly() {
+        double dx = (Math.random() * moveSpeed * 2) - moveSpeed;
+        double dy = (Math.random() * moveSpeed * 2) - moveSpeed;
+
+        setCenterX(getCenterX() + dx);
+        setCenterY(getCenterY() + dy);
+
+    }
+
     private double distanceTo(Actor actor) {
         double x = getCenterX();
         double y = getCenterY();
@@ -82,14 +91,6 @@ public class Actor extends Circle {
         return Math.sqrt(Math.pow(aX - x, 2) + Math.pow(aY - y, 2));
     }
 
-    private void moveRandomly() {
-        double dx = (Math.random() * moveSpeed * 2) - moveSpeed;
-        double dy = (Math.random() * moveSpeed * 2) - moveSpeed;
-
-        setCenterX(getCenterX() + dx);
-        setCenterY(getCenterY() + dy);
-
-    }
 
     private Actor findNearestActorWithAttributes(List<Actor> actors, boolean targetIsZombie) {
         Actor closestActor = null;

@@ -6,13 +6,13 @@ import javafx.scene.*;
 import javafx.scene.canvas.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
 
 public class ZombieSim extends Application {
 
-    public static final int CANVAS_WIDTH = 800;
-    public static final int CANVAS_HEIGHT = 600;
+    public static final int CANVAS_WIDTH = (int) Screen.getPrimary().getVisualBounds().getWidth();
+    public static final int CANVAS_HEIGHT = (int) Screen.getPrimary().getVisualBounds().getHeight();
     public static final int NUM_STARTING_ACTORS = 1000;
 
     private Pane canvas;
@@ -37,6 +37,7 @@ public class ZombieSim extends Application {
             double y = Math.random() * CANVAS_HEIGHT;
 
             Actor a = new Actor(x, y);
+
             actors.add(a);
             canvas.getChildren().add(a);
         }
