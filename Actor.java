@@ -91,19 +91,13 @@ public class Actor extends Circle {
         return Math.sqrt(Math.pow(aX - x, 2) + Math.pow(aY - y, 2));
     }
 
-
     private Actor findNearestActorWithAttributes(List<Actor> actors, boolean targetIsZombie) {
         Actor closestActor = null;
         double closestActorDist = Double.MAX_VALUE;
 
-        double x = getCenterX();
-        double y = getCenterY();
-
         for (Actor actor : actors) {
             if (actor != this && actor.isZombie() == targetIsZombie) {
-                double aX = actor.getCenterX();
-                double aY = actor.getCenterY();
-                double dist = Math.sqrt(Math.pow(aX - x, 2) + Math.pow(aY - y, 2));
+                double dist = distanceTo(actor);
 
                 if (dist < closestActorDist) {
                     closestActor = actor;
