@@ -14,6 +14,7 @@ public class ZombieSim extends Application {
     public static final int CANVAS_WIDTH = (int) Screen.getPrimary().getVisualBounds().getWidth();
     public static final int CANVAS_HEIGHT = (int) Screen.getPrimary().getVisualBounds().getHeight();
     public static final int NUM_STARTING_ACTORS = 1000;
+    public static final int NUM_ALPHA_ZOMBIES = 5;
 
     private Pane canvas;
     private ArrayList<Actor> actors;
@@ -42,7 +43,7 @@ public class ZombieSim extends Application {
             canvas.getChildren().add(a);
         }
         // designate alpha zombies
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < NUM_ALPHA_ZOMBIES; i++) {
             actors.get(i).makeZombie();
         }
 
@@ -50,7 +51,7 @@ public class ZombieSim extends Application {
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent event) {
                         for (Actor a : actors) {
-                            a.act(CANVAS_WIDTH, CANVAS_HEIGHT, actors);
+                            a.act(actors);
                         }
 
                         spreadInfectionOnCollision();

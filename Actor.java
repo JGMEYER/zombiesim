@@ -13,11 +13,15 @@ public class Actor extends Circle {
     public static final double ACTOR_MIN_MOVESPEED = 1;
     public static final double ACTOR_MAX_MOVESPEED = 3;
 
+    //TODO make zombie and human perception based on ACTOR_RADIUS
+
     private double moveSpeed;
     private boolean isZombie = false;
 
     private Line face;
-    private Point2D faceUnitVector;
+    private double heading;
+
+    private Point2D pointTarget;
 
     public Actor(Pane canvas, double centerX, double centerY) {
         super(centerX, centerY, ACTOR_RADIUS, Color.GREEN);
@@ -33,19 +37,17 @@ public class Actor extends Circle {
         face.setStrokeLineCap(StrokeLineCap.ROUND);
         canvas.getChildren().add(face);
 
-        faceUnitVector = new Point2D(0, 0);
+        setHeading(Math.random() * (2 * Math.PI));
         orientFace();
     }
 
-    public void act(int canvasWidth, int canvasHeight, List<Actor> actors) {
-        Point2D unitVector = new Point2D(0, 0);
-
+    public void act(List<Actor> actors) {
         if (isZombie()) {
             Actor nearestHuman = findNearestActorWithAttributes(actors, false);
 
             //TODO figure out actual root to NPE problem & remove quickfix
             if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
-                moveTowards(nearestHuman, 45, false);
+                moveTowards(nearestHuman, Math.toRadians(45), false);
             } else {
                 moveRandomly();
             }
@@ -54,72 +56,130 @@ public class Actor extends Circle {
 
             //TODO figure out actual root of NPE problem & remove quickfix
             if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
-                moveTowards(nearestZombie, 45, true);
+                moveTowards(nearestZombie, Math.toRadians(45), true);
             } else {
                 moveRandomly();
             }
         }
 
+        forceActorWithinBounds(ZombieSim.CANVAS_WIDTH, ZombieSim.CANVAS_HEIGHT);
         orientFace();
-        forceActorWithinBounds(canvasWidth, canvasHeight);
     }
 
-    private void moveTowards(Actor actor, double angleSpread, boolean reverse) {
-        double dx = actor.getCenterX() - getCenterX();
-        double dy = actor.getCenterY() - getCenterY();
+    private void moveTowards(Actor target, double angleSpread, boolean reverse) {
+        double dx = target.getCenterX() - getCenterX();
+        double dy = target.getCenterY() - getCenterY();
 
-        // move away from actor
-        if (reverse) {
+        if (reverse) { // move away from actor
             dx *= -1;
             dy *= -1;
         }
 
-        // establish linear trajectory towards or away from actor
+        rotateTowardsVector(dx, dy);
+        move(0);
+    }
+
+    private void moveRandomly() {
+        if (pointTarget == null || hasReachedPointTarget()) {
+            double x = ZombieSim.CANVAS_WIDTH * Math.random();
+            double y = ZombieSim.CANVAS_HEIGHT * Math.random();
+            pointTarget = new Point2D(x, y);
+        }
+
+        double dx = pointTarget.getX() - getCenterX();
+        double dy = pointTarget.getY() - getCenterY();
+
+        rotateTowardsVector(dx, dy);
+        move(0);
+    }
+
+    private void rotateTowardsVector(double dx, double dy) {
         double dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        dx = (dx / dist) * moveSpeed;
-        dy = (dy / dist) * moveSpeed;
+
+        // unit vectors
+        Point2D headingVector = new Point2D(Math.cos(heading), Math.sin(heading));
+        Point2D targetVector = new Point2D(dx / dist, dy / dist);
+
+        double headingAngle = Math.atan2(headingVector.getY(), headingVector.getX());
+        double targetAngle = Math.atan2(targetVector.getY(), targetVector.getX());
+
+        double deltaAngle = (targetAngle - headingAngle);
+        deltaAngle = normalizeAngleForRotation(deltaAngle);
+
+        if (deltaAngle > 0) {
+            setHeading(heading + Math.toRadians(15)); // CCW
+        } else {
+            setHeading(heading - Math.toRadians(15)); // CW
+        }
+    }
+
+    private void move(double angleSpread) {
+        double dx = Math.cos(heading) * moveSpeed;
+        double dy = Math.sin(heading) * moveSpeed;
 
         double centerX = getCenterX();
         double centerY = getCenterY();
         double newCenterX = getCenterX() + dx;
         double newCenterY = getCenterY() + dy;
 
+        //TODO remove angleSpread?
         // vary linear path by angle spread
-        double rot = Math.toRadians(Math.random() * (angleSpread * 2) - angleSpread);
+        double rot = Math.random() * (angleSpread * 2) - angleSpread;
         newCenterX = centerX + (Math.cos(rot) * (newCenterX - centerX) + Math.sin(rot) * (newCenterY - centerY));
         newCenterY = centerY + (-1 * Math.sin(rot) * (newCenterX - centerX) + Math.cos(rot) * (newCenterY - centerY));
 
         setCenterX(newCenterX);
         setCenterY(newCenterY);
 
-        double uX = (newCenterX - centerX) / moveSpeed;
-        double uY = (newCenterY - centerY) / moveSpeed;
-        Point2D unitVector = new Point2D(uX, uY);
-
-        faceUnitVector = unitVector;
+        orientFace();
     }
 
-    private void moveRandomly() {
-        double dx = Math.random();
-        double dy = Math.random();
+    private void setHeading(double theta) {
+        while (theta <= 2 * Math.PI) theta += 2 * Math.PI;
+        while (theta > 2 * Math.PI) theta -= 2 * Math.PI;
 
-        dx = (dx * moveSpeed * 2) - moveSpeed;
-        dy = (dy * moveSpeed * 2) - moveSpeed;
-        Point2D unitVector = new Point2D(dx / moveSpeed, dy / moveSpeed);
+        heading = theta;
+        this.heading = heading;
+    }
 
-        setCenterX(getCenterX() + dx);
-        setCenterY(getCenterY() + dy);
+    private void orientFace() {
+        double cX = getCenterX();
+        double cY = getCenterY();
 
-        faceUnitVector = unitVector;
+        face.setStartX(cX);
+        face.setStartY(cY);
+        face.setEndX(cX + Math.cos(heading) * ACTOR_RADIUS);
+        face.setEndY(cY + Math.sin(heading) * ACTOR_RADIUS);
+
+        face.toFront();
     }
 
     private double distanceTo(Actor actor) {
-        double x = getCenterX();
-        double y = getCenterY();
-        double aX = actor.getCenterX();
-        double aY = actor.getCenterY();
+        return distanceTo(actor.getCenterX(), actor.getCenterY());
+    }
 
-        return Math.sqrt(Math.pow(aX - x, 2) + Math.pow(aY - y, 2));
+    private double distanceTo(Point2D point) {
+        return distanceTo(point.getX(), point.getY());
+    }
+
+    private double distanceTo(double x, double y) {
+        double cX = getCenterX();
+        double cY = getCenterY();
+
+        return Math.sqrt(Math.pow(x - cX, 2) + Math.pow(y - cY, 2));
+    }
+
+    private double normalizeAngleForRotation(double angle) {
+        double twopi = 2 * Math.PI;
+
+        // fit to target range (-PI < angle <= PI)
+        angle =  angle % (2 * Math.PI);
+        angle = (angle + (2 * Math.PI)) % (2 * Math.PI);
+        if (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+        }
+
+        return angle;
     }
 
     private Actor findNearestActorWithAttributes(List<Actor> actors, boolean targetIsZombie) {
@@ -140,6 +200,10 @@ public class Actor extends Circle {
         return closestActor;
     }
 
+    private boolean hasReachedPointTarget() {
+        return distanceTo(pointTarget) <= ACTOR_RADIUS * 2;
+    }
+
     private void forceActorWithinBounds(int canvasWidth, int canvasHeight) {
         if (getCenterX() < 0) {
             setCenterX(0);
@@ -153,20 +217,6 @@ public class Actor extends Circle {
         if (getCenterY() > canvasHeight) {
             setCenterY(canvasHeight);
         }
-    }
-
-    private void orientFace() {
-        double cX = getCenterX();
-        double cY = getCenterY();
-
-        double theta = Math.atan2(faceUnitVector.getY(), faceUnitVector.getX());
-
-        face.setStartX(cX);
-        face.setStartY(cY);
-        face.setEndX(cX + Math.cos(theta) * ACTOR_RADIUS);
-        face.setEndY(cY + Math.sin(theta) * ACTOR_RADIUS);
-
-        face.toFront();
     }
 
     public boolean collidesWith(Actor a) {
