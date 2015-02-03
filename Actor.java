@@ -81,8 +81,17 @@ public class Actor extends Circle {
 
     private void moveRandomly() {
         if (pointTarget == null || hasReachedPointTarget()) {
-            double x = ZombieSim.CANVAS_WIDTH * Math.random();
-            double y = ZombieSim.CANVAS_HEIGHT * Math.random();
+            double searchRadius = Math.random() * (20 * ACTOR_RADIUS) + 10;
+            double randomAngle = Math.random() * (2 * Math.PI);
+
+            double x = getCenterX() + Math.cos(randomAngle) * searchRadius;
+            double y = getCenterY() + Math.sin(randomAngle) * searchRadius;
+
+            if (x < 0) x = 0;
+            if (x > ZombieSim.CANVAS_WIDTH) x = ZombieSim.CANVAS_WIDTH;
+            if (y < 0) y = 0;
+            if (y > ZombieSim.CANVAS_HEIGHT) y = ZombieSim.CANVAS_HEIGHT;
+
             pointTarget = new Point2D(x, y);
         }
 
