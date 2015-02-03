@@ -52,7 +52,7 @@ public class Actor extends Circle {
                 Actor nearestHuman = findNearestActorWithAttributes(actors, false);
 
                 if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
-                    moveTowards(nearestHuman, Math.toRadians(45), false);
+                    moveTowards(nearestHuman, false);
                 } else {
                     moveRandomly();
                 }
@@ -60,7 +60,7 @@ public class Actor extends Circle {
                 Actor nearestZombie = findNearestActorWithAttributes(actors, true);
 
                 if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
-                    moveTowards(nearestZombie, Math.toRadians(45), true);
+                    moveTowards(nearestZombie, true);
                 } else {
                     moveRandomly();
                 }
@@ -71,15 +71,15 @@ public class Actor extends Circle {
         orientFace();
     }
 
-    private void moveTowards(Actor target, double angleSpread, boolean reverse) {
-        moveTowards(target.getCenterX(), target.getCenterY(), angleSpread, reverse);
+    private void moveTowards(Actor target, boolean reverse) {
+        moveTowards(target.getCenterX(), target.getCenterY(), reverse);
     }
 
-    private void moveTowards(Point2D target, double angleSpread, boolean reverse) {
-        moveTowards(target.getX(), target.getY(), angleSpread, reverse);
+    private void moveTowards(Point2D target, boolean reverse) {
+        moveTowards(target.getX(), target.getY(), reverse);
     }
 
-    private void moveTowards(double x, double y, double angleSpread, boolean reverse) {
+    private void moveTowards(double x, double y, boolean reverse) {
         double dx = x - getCenterX();
         double dy = y - getCenterY();
 
@@ -89,7 +89,7 @@ public class Actor extends Circle {
         }
 
         rotateTowardsVector(dx, dy);
-        move(0);
+        move();
     }
 
     private void moveRandomly() {
@@ -116,7 +116,7 @@ public class Actor extends Circle {
             double dy = pointTarget.getY() - getCenterY();
 
             rotateTowardsVector(dx, dy);
-            move(0);
+            move();
 
             if (hasReachedPointTarget()) {
                 pointTarget = null;
@@ -145,7 +145,7 @@ public class Actor extends Circle {
         }
     }
 
-    private void move(double angleSpread) {
+    private void move() {
         double dx = Math.cos(heading) * moveSpeed;
         double dy = Math.sin(heading) * moveSpeed;
 
@@ -153,12 +153,6 @@ public class Actor extends Circle {
         double centerY = getCenterY();
         double newCenterX = getCenterX() + dx;
         double newCenterY = getCenterY() + dy;
-
-        //TODO remove angleSpread?
-        // vary linear path by angle spread
-        double rot = Math.random() * (angleSpread * 2) - angleSpread;
-        newCenterX = centerX + (Math.cos(rot) * (newCenterX - centerX) + Math.sin(rot) * (newCenterY - centerY));
-        newCenterY = centerY + (-1 * Math.sin(rot) * (newCenterX - centerX) + Math.cos(rot) * (newCenterY - centerY));
 
         setCenterX(newCenterX);
         setCenterY(newCenterY);
