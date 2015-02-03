@@ -138,10 +138,15 @@ public class Actor extends Circle {
         double deltaAngle = (targetAngle - headingAngle);
         deltaAngle = normalizeAngleForRotation(deltaAngle);
 
+        double turnAngle = Math.toRadians(15);
+        if (Math.abs(deltaAngle) < turnAngle) {
+            turnAngle = Math.abs(deltaAngle);
+        }
+
         if (deltaAngle > 0) {
-            setHeading(heading + Math.toRadians(15)); // CCW
+            setHeading(heading + turnAngle); // CCW
         } else {
-            setHeading(heading - Math.toRadians(15)); // CW
+            setHeading(heading - turnAngle); // CW
         }
     }
 
