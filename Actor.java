@@ -10,8 +10,8 @@ import javafx.scene.shape.StrokeLineCap;
 public class Actor extends Circle {
 
     public static final double ACTOR_RADIUS = 7;
-    public static final double ACTOR_MIN_MOVESPEED = 1;
-    public static final double ACTOR_MAX_MOVESPEED = 3;
+    public static final double ACTOR_MIN_MOVESPEED = 0.30;
+    public static final double ACTOR_MAX_MOVESPEED = 0.48;
 
     private boolean isPlayerControlled = false;
 
