@@ -23,6 +23,7 @@ public class Actor extends Circle {
     private Line face;
     private double heading;
 
+    private int waitDuration;
     private Point2D pointTarget;
 
     public Actor(Pane canvas, double centerX, double centerY) {
@@ -92,30 +93,35 @@ public class Actor extends Circle {
     }
 
     private void moveRandomly() {
-        if (pointTarget == null) {
-            double searchRadius = Math.random() * (20 * ACTOR_RADIUS) + 10;
-            double randomAngle = Math.random() * (2 * Math.PI);
+        if (waitDuration == 0) {
+            if (pointTarget == null) {
+                double searchRadius = Math.random() * (20 * ACTOR_RADIUS) + 10;
+                double randomAngle = Math.random() * (2 * Math.PI);
 
-            double x = getCenterX() + Math.cos(randomAngle) * searchRadius;
-            double y = getCenterY() + Math.sin(randomAngle) * searchRadius;
+                double x = getCenterX() + Math.cos(randomAngle) * searchRadius;
+                double y = getCenterY() + Math.sin(randomAngle) * searchRadius;
 
-            setPointTarget(x, y);
+                setPointTarget(x, y);
+            }
+
+            moveTowardsPointTarget();
+        } else {
+            waitDuration--;
         }
-
-        moveTowardsPointTarget();
     }
 
     private void moveTowardsPointTarget() {
-        if (pointTarget != null && hasReachedPointTarget()) {
-            pointTarget = null;
-        }
-
         if (pointTarget != null) {
             double dx = pointTarget.getX() - getCenterX();
             double dy = pointTarget.getY() - getCenterY();
 
             rotateTowardsVector(dx, dy);
             move(0);
+
+            if (hasReachedPointTarget()) {
+                pointTarget = null;
+                waitDuration = 1 * ZombieSim.TARGET_FRAMERATE;
+            }
         }
     }
 

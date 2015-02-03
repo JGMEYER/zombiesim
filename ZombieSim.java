@@ -16,6 +16,8 @@ public class ZombieSim extends Application {
     public static final int CANVAS_HEIGHT = (int) Screen.getPrimary().getVisualBounds().getHeight();
     public static final int NUM_STARTING_ACTORS = 500;
     public static final int NUM_ALPHA_ZOMBIES = 5;
+    public static final int TARGET_FRAMERATE = 60;
+    public static final double FRAME_DURATION = 1000 / TARGET_FRAMERATE;
 
     private Pane canvas;
     private ArrayList<Actor> actors;
@@ -73,7 +75,7 @@ public class ZombieSim extends Application {
             }
         });
 
-        final Timeline loop = new Timeline(new KeyFrame(Duration.millis(16),
+        final Timeline loop = new Timeline(new KeyFrame(Duration.millis(FRAME_DURATION),
                 new EventHandler<ActionEvent>() {
                     public void handle(ActionEvent event) {
                         for (Actor a : actors) {
