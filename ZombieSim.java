@@ -88,7 +88,6 @@ public class ZombieSim extends Application {
     }
 
     //TODO make far more efficient, consider grid system
-    //TODO move collision logic to Actor
     private void spreadInfectionOnCollision() {
         Actor actorA;
         Actor actorB;

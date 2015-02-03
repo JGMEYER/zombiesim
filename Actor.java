@@ -50,7 +50,6 @@ public class Actor extends Circle {
             if (isZombie()) {
                 Actor nearestHuman = findNearestActorWithAttributes(actors, false);
 
-                //TODO figure out actual root to NPE problem & remove quickfix
                 if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
                     moveTowards(nearestHuman, Math.toRadians(45), false);
                 } else {
@@ -59,7 +58,6 @@ public class Actor extends Circle {
             } else {
                 Actor nearestZombie = findNearestActorWithAttributes(actors, true);
 
-                //TODO figure out actual root of NPE problem & remove quickfix
                 if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
                     moveTowards(nearestZombie, Math.toRadians(45), true);
                 } else {
