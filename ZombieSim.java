@@ -4,6 +4,7 @@ import javafx.animation.*;
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.canvas.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.*;
 import javafx.stage.*;
@@ -46,6 +47,31 @@ public class ZombieSim extends Application {
         for (int i = 0; i < NUM_ALPHA_ZOMBIES; i++) {
             actors.get(i).makeZombie();
         }
+
+        canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.isSecondaryButtonDown()) {
+                    for (Actor a : actors) {
+                        if (a.isPlayerControlled()) {
+                            a.setPointTarget(event.getX(), event.getY());
+                        }
+                    }
+                }
+            }
+        });
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.isSecondaryButtonDown()) {
+                    for (Actor a : actors) {
+                        if (a.isPlayerControlled()) {
+                            a.setPointTarget(event.getX(), event.getY());
+                        }
+                    }
+                }
+            }
+        });
 
         final Timeline loop = new Timeline(new KeyFrame(Duration.millis(100),
                 new EventHandler<ActionEvent>() {

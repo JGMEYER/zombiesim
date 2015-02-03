@@ -13,6 +13,8 @@ public class Actor extends Circle {
     public static final double ACTOR_MIN_MOVESPEED = 1;
     public static final double ACTOR_MAX_MOVESPEED = 3;
 
+    private boolean isPlayerControlled = false;
+
     //TODO make zombie and human perception based on ACTOR_RADIUS
 
     private double moveSpeed;
@@ -42,23 +44,27 @@ public class Actor extends Circle {
     }
 
     public void act(List<Actor> actors) {
-        if (isZombie()) {
-            Actor nearestHuman = findNearestActorWithAttributes(actors, false);
-
-            //TODO figure out actual root to NPE problem & remove quickfix
-            if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
-                moveTowards(nearestHuman, Math.toRadians(45), false);
-            } else {
-                moveRandomly();
-            }
+        if (isPlayerControlled) {
+            moveTowardsPointTarget();
         } else {
-            Actor nearestZombie = findNearestActorWithAttributes(actors, true);
+            if (isZombie()) {
+                Actor nearestHuman = findNearestActorWithAttributes(actors, false);
 
-            //TODO figure out actual root of NPE problem & remove quickfix
-            if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
-                moveTowards(nearestZombie, Math.toRadians(45), true);
+                //TODO figure out actual root to NPE problem & remove quickfix
+                if (nearestHuman != null && distanceTo(nearestHuman) < 50) {
+                    moveTowards(nearestHuman, Math.toRadians(45), false);
+                } else {
+                    moveRandomly();
+                }
             } else {
-                moveRandomly();
+                Actor nearestZombie = findNearestActorWithAttributes(actors, true);
+
+                //TODO figure out actual root of NPE problem & remove quickfix
+                if (nearestZombie != null && distanceTo(nearestZombie) < 40) {
+                    moveTowards(nearestZombie, Math.toRadians(45), true);
+                } else {
+                    moveRandomly();
+                }
             }
         }
 
@@ -67,10 +73,18 @@ public class Actor extends Circle {
     }
 
     private void moveTowards(Actor target, double angleSpread, boolean reverse) {
-        double dx = target.getCenterX() - getCenterX();
-        double dy = target.getCenterY() - getCenterY();
+        moveTowards(target.getCenterX(), target.getCenterY(), angleSpread, reverse);
+    }
 
-        if (reverse) { // move away from actor
+    private void moveTowards(Point2D target, double angleSpread, boolean reverse) {
+        moveTowards(target.getX(), target.getY(), angleSpread, reverse);
+    }
+
+    private void moveTowards(double x, double y, double angleSpread, boolean reverse) {
+        double dx = x - getCenterX();
+        double dy = y - getCenterY();
+
+        if (reverse) { // move away from target
             dx *= -1;
             dy *= -1;
         }
@@ -80,26 +94,31 @@ public class Actor extends Circle {
     }
 
     private void moveRandomly() {
-        if (pointTarget == null || hasReachedPointTarget()) {
+        if (pointTarget == null) {
             double searchRadius = Math.random() * (20 * ACTOR_RADIUS) + 10;
             double randomAngle = Math.random() * (2 * Math.PI);
 
             double x = getCenterX() + Math.cos(randomAngle) * searchRadius;
             double y = getCenterY() + Math.sin(randomAngle) * searchRadius;
 
-            if (x < 0) x = 0;
-            if (x > ZombieSim.CANVAS_WIDTH) x = ZombieSim.CANVAS_WIDTH;
-            if (y < 0) y = 0;
-            if (y > ZombieSim.CANVAS_HEIGHT) y = ZombieSim.CANVAS_HEIGHT;
-
-            pointTarget = new Point2D(x, y);
+            setPointTarget(x, y);
         }
 
-        double dx = pointTarget.getX() - getCenterX();
-        double dy = pointTarget.getY() - getCenterY();
+        moveTowardsPointTarget();
+    }
 
-        rotateTowardsVector(dx, dy);
-        move(0);
+    private void moveTowardsPointTarget() {
+        if (pointTarget != null && hasReachedPointTarget()) {
+            pointTarget = null;
+        }
+
+        if (pointTarget != null) {
+            double dx = pointTarget.getX() - getCenterX();
+            double dy = pointTarget.getY() - getCenterY();
+
+            rotateTowardsVector(dx, dy);
+            move(0);
+        }
     }
 
     private void rotateTowardsVector(double dx, double dy) {
@@ -226,6 +245,23 @@ public class Actor extends Circle {
         if (getCenterY() > canvasHeight) {
             setCenterY(canvasHeight);
         }
+    }
+
+    public void setPlayerControlled(boolean isPlayerControlled) {
+        this.isPlayerControlled = isPlayerControlled;
+    }
+
+    public boolean isPlayerControlled() {
+        return isPlayerControlled;
+    }
+
+    public void setPointTarget(double x, double y) {
+        if (x < 0) x = 0;
+        if (x > ZombieSim.CANVAS_WIDTH) x = ZombieSim.CANVAS_WIDTH;
+        if (y < 0) y = 0;
+        if (y > ZombieSim.CANVAS_HEIGHT) y = ZombieSim.CANVAS_HEIGHT;
+
+        pointTarget = new Point2D(x, y);
     }
 
     public boolean collidesWith(Actor a) {
